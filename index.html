@@ -1,0 +1,585 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Azure App Services Web Apps</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/rainer.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section data-state="title">
+                <h2 style="margin-top: 350px;">Azure App Services Web Apps</h2>
+
+                <p>
+                    <small>
+                        Rainer Stropek | <a href="http://www.timecockpit.com" target="_blank">time cockpit</a><br />
+                        rainer@software-architects.at | @rstropek
+                    </small>
+                </p>
+            </section>
+
+            <section data-state="content">
+                <h2>Agenda (German)</h2>
+
+                <p>
+                    <small>
+                        App Services Web Apps ist zurecht einer der beliebtesten Dienste in der Azure-Cloud.
+                        Egal ob ASP.NET, PHP, Node.js, App Services bieten eine Betriebsumgebung für Web APIs und
+                        Webanwendungen, von denen man außerhalb der Azure-Cloud meist nur träumen kann. In dem Workshop
+                        stellt Rainer Stropek, langjähriger Azure MVP und MS Regional Director, App Services Web Apps vor.
+                        Anhand vieler Demos zeigt er, wie man den Dienst erstellt, Deployments organisiert,
+                        Test- und Produktivumgebungen trennt, Authentifizierung hinzufügt und vieles mehr. Rainer wird
+                        Beispiele mit ASP.NET und Node.js zeigen. Er setzt von den Teilnehmern Grundwissen über
+                        Webentwicklung und damit verbundene Tools und Technologien voraus.
+                    </small>
+                </p>
+            </section>
+
+            <!-- Introduction -->
+            <section data-state="content">
+                <section data-state="section-title">
+                    <h2>Introduction</h2>
+                </section>
+
+                <section>
+                    <h2>Why Web Apps?</h2>
+
+                    <ul>
+                        <li class="fragment">Fully managed</li>
+                        <li class="fragment">Language/technology-independent</li>
+                        <li class="fragment">
+                            HTTP,
+                            <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-configure-ssl-certificate/" target="_blank">HTTPS</a>,
+                            <a href="http://www.asp.net/signalr/overview/signalr-20/getting-started-with-signalr-20/using-signalr-with-windows-azure-web-sites">SignalR</a> and
+                            <a href="https://azure.microsoft.com/blog/2013/11/14/introduction-to-websockets-on-windows-azure-web-sites/" target="_blank">WebSockets</a>
+                        </li>
+                        <li class="fragment">Scaleable</li>
+                        <li class="fragment">Templates available (Web Apps Gallery)</li>
+                        <li class="fragment">Integrated with VSTS for CI/CD</li>
+                        <li class="fragment">Staged deployments (dev/test/prod, TIP)</li>
+                        <li class="fragment">Web Jobs</li>
+                        <li class="fragment">
+                            Supports <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-hybrid-connection-get-started/" target="_blank">hybrid solutions</a>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>App Service Plans</h2>
+
+                    <ul>
+                        <li class="fragment">
+                            Resources and settings shared across multiple apps<br />
+                            <small>E.g. Price plan, scaling, VPN, resource monitoring, geography</small>
+                        </li>
+                        <li class="fragment">
+                            Price plans from free to enterprise-grade<br />
+                            <small><a href="https://azure.microsoft.com/en-us/pricing/details/app-service/" target="_blank">More about price plans</a></small>
+                        </li>
+                        <li class="fragment">
+                            Used to separate environments (customers, dev/test/prod, etc.)<br />
+                            <small>Security, dedicated resources</small>
+                        </li>
+                        <li class="fragment">
+                            Each web app on one app service plan<br />
+                            <small>Can be moved (same region/RG) or cloned (different region/RG)</small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: App Service Plans</h2>
+
+                    <ul>
+                        <li>Create Resource Group</li>
+                        <li>Create App Service Plan</li>
+                        <li>Create first Web App in Plan</li>
+                        <li>Create second Web App and assign to existing Plan</li>
+                        <li>Create App Service Plan and Web App with ARM</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Prerequisites for Demos -->
+            <section>
+                <section data-state="section-title">
+                    <h2>Prerequisites for Demos</h2>
+                </section>
+
+                <section>
+                    <h2>Visual Studio</h2>
+
+                    <ul>
+                        <li>
+                            Visual Studio 2015<br />
+                            <small>
+                                Latest version: <a href="http://go.microsoft.com/fwlink/?LinkId=691129" target="_blank">Update 2</a>
+                                (Preview of <a href="https://www.visualstudio.com/en-us/downloads/visual-studio-next-downloads-vs.aspx" target="_blank">Visual Studio "15"</a> available, not used here)
+                                <img class="image-small" src="img/visual-studio-about.png" />
+                            </small>
+                        </li>
+                        <li>
+                            How to get it?<br />
+                            <small>
+                                <a href="https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx" target="_blank">Download</a>
+                                - Community Ed. and Visual Studio Code are free, trial for Enterprise Ed. available<br />
+                                <a href="https://www.visualstudio.com/en-us/products/compare-visual-studio-2015-products-vs.aspx">Compare editions</a>
+                            </small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Visual Studio on Azure</h2>
+
+                    <img src="img/azure-visual-studio-vms.png" />
+                </section>
+
+                <section>
+                    <h2>Tools and Extensions</h2>
+
+                    <ul>
+                        <li><a href="https://nodejs.org/en/" target="_blank">Node.js with NPM</a></li>
+                        <li><a href="https://git-scm.com/" target="_blank">Git for Windows</a> (plus GUI client if you want)</li>
+                        <li><a href="https://visualstudiogallery.msdn.microsoft.com/c94a02e9-f2e9-4bad-a952-a63a967e3935" target="_blank">ASP.NET and Web Tools for VS 2015 (Preview)</a></li>
+                        <li><a href="https://azure.microsoft.com/en-us/downloads/" target="_blank">Azure SDK for VS 2015</a></li>
+                        <li><a href="https://filezilla-project.org/" target="_blank">FileZilla</a></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Microsoft Azure</h2>
+
+                    <ul>
+                        <li><a href="https://azure.microsoft.com/en-us/" target="_blank">Azure Homepage</a></li>
+                        <li>Use your company's Enterprise Agreement</li>
+                        <li>Pay-as-you-go</li>
+                        <li><a href="https://azure.microsoft.com/en-us/free/" target="_blank">Get free trial</a></li>
+                        <li><a href="https://azure.microsoft.com/en-us/pricing/member-offers/msdn-benefits-details/" target="_blank">Use MSDN benefits</a></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Visual Studio Team Services</h2>
+
+                    <ul>
+                        <li>
+                            <a href="https://www.visualstudio.com/en-us/products/visual-studio-team-services-vs" target="_blank">Get VSTS account</a><br />
+                            <small>Free for small teams (<a href="https://www.visualstudio.com/pricing/visual-studio-team-services-pricing-vs" target="_blank">pricing</a>)</small>
+                        </li>
+                        <li><a href="https://www.visualstudio.com/en-us/products/subscriber-benefits-vs.aspx" target="_blank">Use MSDN subscriber benefits</a></li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Web Apps Bascis -->
+            <section data-state="content">
+                <section data-state="section-title">
+                    <h2>Web Apps Basics</h2>
+                </section>
+
+                <section>
+                    <h2>Working with Web Apps</h2>
+
+                    <ul>
+                        <li class="fragment">
+                            <a href="https://portal.azure.com" target="_blank">Azure Portal</a>
+                        </li>
+                        <li class="fragment">FTP</li>
+                        <li class="fragment">Sync with OneDrive or Dropbox (not covered here)</li>
+                        <li class="fragment">Visual Studio Online "Monaco"</li>
+                        <li class="fragment">
+                            Visual Studio (<a href="https://azure.microsoft.com/en-us/downloads/" target="_blank">SDK</a>)
+                        </li>
+                        <li class="fragment"><a href="http://www.iis.net/downloads/microsoft/web-deploy" target="_blank">Web Deploy</a></li>
+                        <li class="fragment"><a href="https://www.visualstudio.com/en-us/features/continuous-integration-vs.aspx" target="_blank">Continuous Integration with VSTS</a></li>
+                        <li class="fragment"><a href="https://github.com/projectkudu/kudu/wiki" target="_blank">Kudu</a> (Git)</li>
+                        <li class="fragment"><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-deploy/#automate">Command line tools</a> (e.g. Powershell, CLI) for automation</li>
+                    </ul>
+
+                    <p class="fragment">
+                        <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-deploy/">
+                            Details about deployment options
+                        </a>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Demo: Configure in Azure Portal</h2>
+
+                    <img class="image-small" src="img/configure01.png" />
+
+                    <ul>
+                        <li>
+                            General settings<br />
+                            <small>Always On, Platform</small>
+                        </li>
+                        <li>
+                            App settings and Connection Strings<br />
+                            <small>Override <span class="code">web.config</span>, environment variables</small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: FTP</h2>
+
+                    <ul>
+                        <li>Simple :-) but no history :-(</li>
+                        <li>
+                            Setup <em>Deployment Credentials</em><br />
+                            <img class="image-small" src="img/save_credentials.png" />
+                        </li>
+                        <li>Connect with FileZilla</li>
+                        <li>
+                            Deploy Website with FTP<br />
+                            <small>
+                                Director structure:
+                                <span class="code"><a href="https://github.com/projectkudu/kudu/wiki/File-structure-on-azure">/site/wwwroot</a></span>,
+                                <span class="code">/site/wwwroot/App_Data/Jobs/</span> for Web Jobs
+                            </small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: VSO "Monaco"</h2>
+
+                    <ul>
+                        <li>Handy for small projects and trials, not for production</li>
+                        <li>Adding Extensions to Web Apps</li>
+                        <li>Editing code online</li>
+                        <li>Uploading resources (e.g. images, ZIP)</li>
+                        <li>Command line in the browser</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: Visual Studio</h2>
+
+                    <ul>
+                        <li>Tip: Only for trials, not for serious projects</li>
+                        <li>Connect VS with Azure account</li>
+                        <li>Web Apps in .NET Web Project wizard</li>
+                        <li>Publish wizard with .NET projects (Web Deploy)</li>
+                        <li>App Service Activity window</li>
+                        <li>Web Apps in Server Explorer</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: <a href="https://www.visualstudio.com/en-us/features/continuous-integration-vs.aspx" target="_blank">CI with VSTS</a></h2>
+
+                    <ul>
+                        <li>Pro: Version history, repeatable</li>
+                        <li>Connect VSTS project and Azure Web App</li>
+                        <li>Creating Web Deploy packages for Web App deployment</li>
+                        <li>Deploy in automated build in VSTS</li>
+                        <li>
+                            Automate deployment using VSTS Release Management<br />
+                            <small>
+                                Note branches and <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-deploy/web-sites-staged-publishing">slots</a>
+                                for staged deployment (dev/test/prod).
+                            </small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: <a href="https://github.com/projectkudu/kudu/wiki" target="_blank">Kudu</a></h2>
+
+                    <ul>
+                        <li>Pro: Version history, repeatable</li>
+                        <li>
+                            Setup <em>Deployment Credentials</em><br />
+                            <img class="image-smallest" src="img/save_credentials.png" />
+                        </li>
+                        <li>Connect local Git repository with Web Apps</li>
+                        <li>
+                            Publishing web apps with Kudu<br />
+                            <small>.NET, Node.js</small>
+                        </li>
+                        <li>
+                            Kudu <em>scm</em> service at <span class="code">https://&lt;sitename&gt;.scm.azurewebsites.net/</span>
+                        </li>
+                    </ul>
+
+                    <p>
+                        <small>
+                            Step-by-step lab:
+                            <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-publish-source-control/">Continuous deployment using GIT in Azure App Service</a>
+                        </small>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Tips for Node.js on Web Apps</h2>
+
+                    <ul>
+                        <li>Use <span class="code">process.env.port</span> for production port</li>
+                        <li><span class="code">stdout</span> and <span class="code">stderr</span> captured by Azure for troubleshooting</li>
+                        <li>Specify which <a href="https://azure.microsoft.com/en-us/documentation/articles/app-service-web-nodejs-get-started/#use-a-specific-nodejs-engine">version of Node.js</a> you want to use</li>
+                        <li><a href="https://azure.microsoft.com/en-us/documentation/articles/app-service-web-nodejs-get-started/" target="_blank">Further reading</a></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Demo: Scaling</h2>
+
+                    <ul>
+                        <li>
+                            Scale up<br />
+                            <small>
+                                Get larger servers<br />
+                                Note that <em>free</em> and <em>shared</em> tiers are functionally limited
+                            </small>
+                        </li>
+                        <li>
+                            Scale out<br />
+                            <small>Get more server, requires stateless web app</small>
+                        </li>
+                        <li>
+                            Manually vs. automatically
+                        </li>
+                    </ul>
+
+                    <p>
+                        <small>
+                            Step-by-step lab:
+                            <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-scale/">Scale a web app in Azure App Service</a>
+                        </small>
+                    </p>
+                </section>
+            </section>
+
+            <!-- Staging -->
+            <section data-state="content">
+                <section data-state="section-title">
+                    <h2>Staging Environments</h2>
+                </section>
+
+                <section>
+                    <h2>Introduction</h2>
+
+                    <ul>
+                        <li class="fragment">
+                            Create deployment slots for environments<br />
+                            <small>Real web apps, can be swapped (seamless, no requests are dropped)</small>
+                        </li>
+                        <li class="fragment">
+                            Validate web app before putting it into production
+                        </li>
+                        <li class="fragment">
+                            Go back to "last known good state"
+                        </li>
+                        <li class="fragment">
+                            Warm up environments before they go live<br />
+                            <small>E.g. fill caches, <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-staged-publishing/#custom-warm-up-before-swap" target="_blank">details</a></small>
+                        </li>
+                        <li class="fragment">
+                            Automate using PowerShell or Azure CLI<br />
+                            <small><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-staged-publishing/#azure-powershell-cmdlets-for-deployment-slots" target="_blank">Details</a></small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Configuration</h2>
+
+                    <ul>
+                        <li class="fragment">
+                            Majority of the configuration is swapped, too<br />
+                            <small><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-staged-publishing/#configuration-for-deployment-slots" target="_blank">Details</a></small>
+                        </li>
+                        <li class="fragment">
+                            Stick setting to a slot if necessary<br />
+                            <small>E.g. Storage connection information</small><br />
+                            <img src="img/slotsetting.png" />
+                        </li>
+                        <li class="fragment">
+                            Get information about current Web App using <a href="https://github.com/projectkudu/kudu/wiki/Azure-runtime-environment" target="_blank">environment variables</a>
+                        </li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Security -->
+            <section data-state="content">
+                <section data-state="section-title">
+                    <h2>Security</h2>
+                </section>
+
+                <section>
+                    <h2>What Azure gives you</h2>
+
+                    <ul>
+                        <li class="fragment">Secure and reliable platform with SLAs</li>
+                        <li class="fragment">
+                            <a href="https://github.com/projectkudu/kudu/wiki/Azure-Web-App-sandbox" target="_blank">Sandbox</a>: Isolated environment for web apps
+                        </li>
+                        <li class="fragment">
+                            Proper handling of secrects<br />
+                            <small>E.g. connection string; stay within Resource Group's network boundary, stored always encrypted</small>
+                        </li>
+                        <li class="fragment">Management communication always encrypted</li>
+                        <li class="fragment">
+                            Threat management<br />
+                            <small>Protection from DDos, malware, etc.</small>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>What you have to do</h2>
+
+                    <ul>
+                        <li class="fragment">
+                            Write secure software<br />
+                            <small>E.g. no SQL injections, follow <a href="https://www.owasp.org/index.php/Main_Page" target="_blank">OWASP</a> guidelines, etc.</small>
+                        </li>
+                        <li class="fragment">
+                            Use HTTPS<br />
+                            <small>
+                                Provided out-of-the-box for <span class="code">*.azurewebsites.net</span>,
+                                <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-configure-ssl-certificate/" target="_blank">upload SSL certs</a> for custom domain names
+                            </small>
+                        </li>
+                        <li class="fragment">Use FTPS instead of FTP</li>
+                        <li class="fragment">Protect data storage</li>
+                        <li class="fragment">Protect <em>publishing profiles</em> and <em>publish settings files</em></li>
+                        <li class="fragment">
+                            Never check-in security-critical configuration settings (e.g. <span class="code">web.config</span>)<br />
+                            <small>Store these settings in web app settings instead (does not physically modify config files)</small>
+                        </li>
+                        <li class="fragment">
+                            Consider built-in <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-authentication-authorization/" target="_blank">AAD integration</a>
+                        </li>
+                    </ul>
+
+                    <p class="fragment">
+                        <small>
+                            <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-security/">Details</a>
+                        </small>
+                    </p>
+                </section>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section data-state="content">
+                <section data-state="section-title">
+                    <h2>Troubleshooting</h2>
+                </section>
+
+                <section>
+                    <h2>Remote Debugging</h2>
+
+                    <ul>
+                        <li>Enable in Web App Settings</li>
+                        <li>
+                            Attach Visual Studio<br />
+                            <img class="image-small" src="img/attach-debugger-server-explorer.png" />
+                        </li>
+                        <li>Demo</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Diagnostic Logs and Alerts</h2>
+
+                    <ul>
+                        <li><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-enable-diagnostic-log/" target="_blank">Enabling logs</a></li>
+                        <li>Download e.g. using FTP</li>
+                        <li>Setup <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-monitor/" target="_blank">metrics and alerts</a></li>
+                        <li>Demo</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Node.js</h2>
+
+                    <ul>
+                        <li>
+                            Kudu debug console<br />
+                            <small><span class="code">https://&lt;appname&gt;.scm.azurewebsites.net/DebugConsole</span></small>
+                        </li>
+                        <li>
+                            Uses <a href="https://github.com/tjanczuk/iisnode">iisnode</a><br />
+                            <small><span class="code">web.config</span> is <a href="https://github.com/projectkudu/kudu/wiki/Using-a-custom-web.config-for-Node-apps" target="_blank">auto-generated by Kudu</a></small>
+                        </li>
+                        <li><a href="https://azure.microsoft.com/en-us/documentation/articles/app-service-web-nodejs-get-started/#debug-your-app-with-node-inspector" target="_blank">Debug with <em>Node-Inspector</em></a></li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Advanced Topics -->
+            <section data-state="content">
+                <h2>Advanced Topics</h2>
+                <p>
+                    <small>
+                        Not covered here in details, follow links to learn more
+                    </small>
+                </p>
+
+                <ul>
+                    <li class="fragment"><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-custom-domain-name/" target="_blank">Custom domain names</a></li>
+                    <li class="fragment">
+                        <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-backup/" target="_blank">Backup</a> and
+                        <a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-restore/" target="_blank">restore</a> web apps and connected SQL DBs
+                    </li>
+                    <li class="fragment"><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-integrate-with-vnet/" target="_blank">VNet integration of Web Apps</a></li>
+                    <li class="fragment"><a href="https://azure.microsoft.com/en-us/documentation/articles/web-sites-dotnet-troubleshoot-visual-studio/" target="_blank">Details about Troubleshooting</a></li>
+                    <li class="fragment"><a href="https://azure.microsoft.com/en-us/documentation/articles/app-service-web-arm-from-github-provision/" target="_blank">Deploying web apps from Git using ARM templates</a></li>
+                    <li class="fragment"><a href="https://azure.microsoft.com/en-us/documentation/articles/app-service-app-service-environments-readme/" target="_blank">App Service Environments</a></li>
+                    <li class="fragment"><a href="https://github.com/projectkudu/kudu/wiki/REST-API" target="_blank">Kudu REST API</a></li>
+                </ul>
+            </section>
+
+            <section data-state="title">
+                <h2 style="margin-top: 350px;">Thank you for attending!</h2>
+
+                <p>
+                    <small>
+                        Rainer Stropek | <a href="http://www.timecockpit.com" target="_blank">time cockpit</a><br />
+                        rainer@software-architects.at | @rstropek
+                    </small>
+                </p>
+            </section>
+        </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+        // More info https://github.com/hakimel/reveal.js#configuration
+        Reveal.initialize({
+            history: true,
+
+            // More info https://github.com/hakimel/reveal.js#dependencies
+            dependencies: [
+                { src: 'plugin/markdown/marked.js' },
+                { src: 'plugin/markdown/markdown.js' },
+                { src: 'plugin/notes/notes.js', async: true },
+                { src: 'plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+            ]
+        });
+    </script>
+</body>
+</html>
